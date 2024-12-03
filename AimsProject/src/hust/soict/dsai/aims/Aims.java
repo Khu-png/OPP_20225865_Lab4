@@ -89,7 +89,7 @@ public class Aims {
             store.printStore();
             /* Passing scanner to storeMenu */
             store.storeMenu(scanner);
-            System.out.print("Please choose an option (type 0 again to go back to storeMenu): ");
+            System.out.print("Confirm ? (Please choose 0 to go back to storemenu): ");
             choice = scanner.nextInt();
             scanner.nextLine();  // Consume the newline
 

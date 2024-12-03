@@ -2,50 +2,55 @@ package src.hust.soict.dsai.aims.store;
 
 import src.hust.soict.dsai.aims.cart.Cart;
 import src.hust.soict.dsai.aims.media.Media;
+import src.hust.soict.dsai.aims.media.MediaComparatorByCostTitle;
+import src.hust.soict.dsai.aims.media.MediaComparatorByTitleCost;
 import src.hust.soict.dsai.aims.media.Playable;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Scanner;
 
 public class Store {
     private final ArrayList<Media> itemsInStore; // List of Media items in the store
     private final Cart cart; // Cart instance to add media to
 
-    // Constructor to initialize the store with an empty list of Media items
-    // and a Cart object
     public Store(Cart cart) {
         this.itemsInStore = new ArrayList<>();
         this.cart = cart;  // Initialize Cart
     }
 
-    // Method to add Media to the store
+
     public void addMedia(Media media) {
+        if (media == null) {
+            System.out.println("Cannot add a null media.");
+            return;
+        }
         itemsInStore.add(media);
         System.out.println(media.getTitle() + " has been added to the store.");
     }
 
     // Method to remove Media from the store
     public void removeMedia(Media media) {
-        if (itemsInStore.contains(media)) {
-            itemsInStore.remove(media);
+        if (itemsInStore.remove(media)) {
             System.out.println(media.getTitle() + " has been removed from the store.");
         } else {
             System.out.println("Item not found in the store.");
         }
     }
 
-    // Method to display all items in the store
+
     public void printStore() {
         System.out.println("********************** STORE **********************");
-        System.out.println("Items in the store:");
-        for (int i = 0; i < itemsInStore.size(); i++) {
-            System.out.println((i + 1) + ". " + itemsInStore.get(i).toString());
+        if (itemsInStore.isEmpty()) {
+            System.out.println("The store is currently empty.");
+        } else {
+            for (int i = 0; i < itemsInStore.size(); i++) {
+                System.out.println((i + 1) + ". " + itemsInStore.get(i));
+            }
         }
         System.out.println("*****************************************************");
     }
 
-    // Method to search for Media by title
+
     public void findMediaByTitle(String title) {
         boolean found = false;
         for (Media media : itemsInStore) {
@@ -59,7 +64,6 @@ public class Store {
         }
     }
 
-    // Method to search for Media by ID
     public void findMediaById(int id) {
         for (Media media : itemsInStore) {
             if (media.getId() == id) {
@@ -70,14 +74,16 @@ public class Store {
         System.out.println("Media with ID " + id + " not found.");
     }
 
-    // Method to add a media item to the cart
     public void addMediaToCart(Media media) {
-        cart.addMedia(media); // Add media to the cart
+        if (media == null) {
+            System.out.println("Cannot add null to the cart.");
+            return;
+        }
+        cart.addMedia(media);
         System.out.println(media.getTitle() + " has been added to the cart.");
     }
 
-    // Method to print store menu and interact with the user
-    // In Store class
+
     public void storeMenu(Scanner scanner) {
         System.out.println("Options: ");
         System.out.println("--------------------------------");
@@ -141,12 +147,10 @@ public class Store {
         }
     }
 
-
     // Method to view the current cart
     public void viewCart() {
-        System.out.println("********** Current Cart **********");
-        cart.printCart(); // Display cart items
-        System.out.println("***********************************");
+        System.out.println("Current Cart :");
+        cart.printCart();
     }
 
     // Method to display details of a media item
@@ -181,7 +185,6 @@ public class Store {
         }
     }
 
-    // Example method to play a media item
     public void playMedia(Media media) {
         if (media instanceof Playable) {  // Check if media can be played
             ((Playable) media).play();
@@ -206,16 +209,21 @@ public class Store {
         }
     }
 
-    // Method to sort medias by title or cost
     public void sortMedias(String criterion) {
-        if (criterion.equalsIgnoreCase("title")) {
-            itemsInStore.sort(Comparator.comparing(Media::getTitle));
-        } else if (criterion.equalsIgnoreCase("cost")) {
-            itemsInStore.sort((media1, media2) -> Float.compare(media1.getCost(), media2.getCost()));
-        } else {
-            System.out.println("Invalid sort criterion.");
+        switch (criterion.toLowerCase()) {
+            case "title":
+                itemsInStore.sort(new MediaComparatorByTitleCost());
+                System.out.println("Store sorted by Title -> Cost.");
+                break;
+            case "cost":
+                itemsInStore.sort(new MediaComparatorByCostTitle());
+                System.out.println("Store sorted by Cost -> Title.");
+                break;
+            default:
+                System.out.println("Invalid sort criterion. Use 'title' or 'cost'.");
+                return;
         }
-        System.out.println("Store has been sorted by " + criterion + ".");
+        printStore(); // Display sorted store
     }
 
     // Method to get Media by title from the store
